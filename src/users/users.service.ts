@@ -12,23 +12,28 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  create(body: CreateUserDto) {
-    const user = this.userRepository.create({
-      email: body.email,
-      password: body.password,
-    });
+  create(email: string, password: string) {
+    const user = this.userRepository.create({ email, password });
     return this.userRepository.save(user);
   }
 
-  findOne(id: number) {
-    return this.userRepository.findOneBy({ id });
+  async findOne(id: number) {
+    if (!id) return null;
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user)
+      throw new NotFoundException(`User with id:${id} does not exist!`);
+    return user;
   }
 
-  find(email: string) {
-    return this.userRepository.find({
+  async find(email: string) {
+    const [user] = await this.userRepository.find({
       where: { email },
       // relations: { /* relations */ }
     });
+
+    // if (!user)
+    //  throw new NotFoundException(`A user with email ${email} not found`);
+    return user;
   }
 
   async update(id: number, body: UpdateUserDto) {
@@ -39,7 +44,11 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    const user = await this.userRepository.findOneBy({ id });
-    return this.userRepository.remove(user);
+    // const user = await this.userRepository.findOneBy({ id });
+    // return this.userRepository.remove(user);
+    //
+    // using a more effecient way and not benefiting from hooks
+    // we will use the dlete method instead of find then remove methods
+    return this.userRepository.delete(id);
   }
 }

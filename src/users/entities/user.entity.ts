@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+// import { Exclude } from 'class-transformer';
 
 @Entity()
 @Unique(['email'])
@@ -18,6 +19,7 @@ export class UserEntity {
   email: string;
 
   @Column()
+  // @Exclude()
   password: string;
 
   @AfterInsert()
